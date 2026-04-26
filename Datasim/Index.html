@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JERRY Demo Database</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+body {
+    background: #0f0b0e;
+    color: white;
+    font-family: Arial;
+}
+.card {
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 15px;
+}
+.btn {
+    background: #ff2d75;
+    padding: 12px;
+    border-radius: 10px;
+    width: 100%;
+}
+</style>
+</head>
+
+<body class="p-5">
+
+<h1 class="text-2xl mb-5">🌸 JERRY Demo Lookup</h1>
+
+<div class="card mb-5">
+    <input id="input" class="w-full p-3 text-black rounded mb-3" placeholder="Enter number or CNIC">
+    <button class="btn" onclick="searchData()">Search</button>
+</div>
+
+<div id="result" class="card hidden"></div>
+
+<div class="card mt-5">
+    <h2 class="mb-3">History</h2>
+    <div id="history"></div>
+</div>
+
+<script>
+
+// ===== DEMO DATA =====
+function generateData(query) {
+    const names = ["Ali Raza","Sara Khan","Zain Malik","Ayesha","Usman"];
+    const cities = ["Karachi","Lahore","Islamabad","Rawalpindi"];
+
+    return {
+        phone: query,
+        name: names[Math.floor(Math.random()*names.length)],
+        cnic: "3" + Math.floor(1000000000000 + Math.random()*9000000000000),
+        address: cities[Math.floor(Math.random()*cities.length)]
+    };
+}
+
+// ===== SEARCH =====
+function searchData() {
+    let input = document.getElementById("input").value.trim();
+
+    if (!input) {
+        alert("Enter something");
+        return;
+    }
+
+    let resultBox = document.getElementById("result");
+
+    resultBox.classList.remove("hidden");
+    resultBox.innerHTML = "Searching...";
+
+    setTimeout(() => {
+        let data = generateData(input);
+
+        resultBox.innerHTML = `
+            <p>📞 ${data.phone}</p>
+            <p>👤 ${data.name}</p>
+            <p>🆔 ${data.cnic}</p>
+            <p>📍 ${data.address}</p>
+        `;
+
+        saveHistory(data.phone);
+
+    }, 800);
+}
+
+// ===== HISTORY =====
+function saveHistory(num) {
+    let h = JSON.parse(localStorage.getItem("hist") || "[]");
+    h.unshift(num);
+    if (h.length > 5) h.pop();
+    localStorage.setItem("hist", JSON.stringify(h));
+    renderHistory();
+}
+
+function renderHistory() {
+    let h = JSON.parse(localStorage.getItem("hist") || "[]");
+    let box = document.getElementById("history");
+
+    if (!h.length) {
+        box.innerHTML = "No history";
+        return;
+    }
+
+    box.innerHTML = h.map(i => `<div onclick="fill('${i}')" style="cursor:pointer">${i}</div>`).join("");
+}
+
+function fill(val) {
+    document.getElementById("input").value = val;
+}
+
+renderHistory();
+
+</script>
+
+</body>
+</html>
